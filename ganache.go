@@ -98,8 +98,6 @@ func (gr *GanacheRuntime) Accounts() ([]*Account, error) {
 
 	accs := make([]*Account, 0)
 
-	fmt.Println("af", af)
-
 	for k, v := range af.PrivateKeys {
 		publicKeyString := k
 		privateKeyString := v
