@@ -14,6 +14,13 @@ type Account struct {
 }
 
 type AccountsFile struct {
+	Addresses   map[string]string `json:"addresses"`
+	PrivateKeys map[string]string `json:"private_keys"`
+}
+
+// This was used by ganache-cli
+/*
+type LegacyAccountsFile struct {
 	Addresses map[string]struct {
 		SecretKey struct {
 			Type string `json:"type"`
@@ -33,3 +40,4 @@ type AccountsFile struct {
 	} `json:"addresses"`
 	PrivateKeys map[string]string `json:"private_keys"`
 }
+*/

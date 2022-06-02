@@ -1,6 +1,6 @@
 # libganache
 
-Install `ganache-cli` and then use `libganache` like this:
+Install `ganache` (`yarn global add ganache`) and then use `libganache` like this:
 
 ```go
 package main

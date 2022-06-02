@@ -26,7 +26,7 @@ type RunGanacheOptions struct {
 }
 
 var defaultOptions = &RunGanacheOptions{
-	Executable: "ganache-cli",
+	Executable: "ganache",
 	GasLimit:   "100000000000",
 	GasPrice:   "2000000000",
 }
@@ -59,7 +59,7 @@ func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
 		gasPrice = defaultOptions.GasPrice
 	}
 
-	cmd := exec.Command(executable, "--account_keys_path", accsFilename, "--gasLimit", gasLimit, "--gasPrice", gasPrice)
+	cmd := exec.Command(executable, "--wallet.accountKeysPath", accsFilename, "--miner.blockGasLimit", gasLimit, "--gasPrice", gasPrice)
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("error running ganache: %w", err)
 	}
@@ -98,13 +98,17 @@ func (gr *GanacheRuntime) Accounts() ([]*Account, error) {
 
 	accs := make([]*Account, 0)
 
+	fmt.Println("af", af)
+
 	for k, v := range af.PrivateKeys {
 		publicKeyString := k
 		privateKeyString := v
 
 		publicKey := common.HexToAddress(publicKeyString)
 
-		privateKey, err := crypto.HexToECDSA(privateKeyString)
+		// We take the initial 0x out because HexToECDSA expects this way.
+		privateKeyStringWithout0x := privateKeyString[2:]
+		privateKey, err := crypto.HexToECDSA(privateKeyStringWithout0x)
 		if err != nil {
 			return nil, fmt.Errorf("error making private key: %w", err)
 		}
