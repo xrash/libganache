@@ -3,6 +3,7 @@ package libganache
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -20,15 +21,17 @@ type GanacheRuntime struct {
 }
 
 type RunGanacheOptions struct {
-	Executable string
-	GasLimit   string
-	GasPrice   string
+	Executable   string
+	GasLimit     string
+	GasPrice     string
+	StdoutWriter io.Writer
 }
 
 var defaultOptions = &RunGanacheOptions{
-	Executable: "ganache",
-	GasLimit:   "100000000000",
-	GasPrice:   "2000000000",
+	Executable:   "ganache",
+	GasLimit:     "100000000000",
+	GasPrice:     "2000000000",
+	StdoutWriter: nil,
 }
 
 func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
@@ -59,7 +62,20 @@ func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
 		gasPrice = defaultOptions.GasPrice
 	}
 
-	cmd := exec.Command(executable, "--wallet.accountKeysPath", accsFilename, "--miner.blockGasLimit", gasLimit, "--gasPrice", gasPrice)
+	cmd := exec.Command(
+		executable,
+		"--wallet.accountKeysPath",
+		accsFilename,
+		"--miner.blockGasLimit",
+		gasLimit,
+		"--gasPrice",
+		gasPrice,
+	)
+
+	if options.StdoutWriter != nil {
+		cmd.Stdout = options.StdoutWriter
+	}
+
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("error running ganache: %w", err)
 	}
