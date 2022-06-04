@@ -25,6 +25,7 @@ type RunGanacheOptions struct {
 	GasLimit     string
 	GasPrice     string
 	StdoutWriter io.Writer
+	CLIArgs      []string
 }
 
 var defaultOptions = &RunGanacheOptions{
@@ -32,6 +33,7 @@ var defaultOptions = &RunGanacheOptions{
 	GasLimit:     "100000000000",
 	GasPrice:     "2000000000",
 	StdoutWriter: nil,
+	CLIArgs:      nil,
 }
 
 func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
@@ -62,8 +64,15 @@ func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
 		gasPrice = defaultOptions.GasPrice
 	}
 
-	cmd := exec.Command(
-		executable,
+	var args []string
+	if options.CLIArgs != nil {
+		args = options.CLIArgs
+	} else {
+		args = make([]string, 0)
+	}
+
+	allArgs := append(
+		args,
 		"--wallet.accountKeysPath",
 		accsFilename,
 		"--miner.blockGasLimit",
@@ -71,6 +80,8 @@ func RunGanache(options *RunGanacheOptions) (*GanacheRuntime, error) {
 		"--gasPrice",
 		gasPrice,
 	)
+
+	cmd := exec.Command(executable, allArgs...)
 
 	if options.StdoutWriter != nil {
 		cmd.Stdout = options.StdoutWriter
